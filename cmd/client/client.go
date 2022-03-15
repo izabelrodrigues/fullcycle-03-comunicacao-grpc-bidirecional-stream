@@ -3,8 +3,8 @@ package main
 import (
 	"context"
 	"fmt"
-	"log"
 	"io"
+	"log"
 
 	"github.com/izabelrodrigues/fullcycle-grpc-stream/pb"
 	"google.golang.org/grpc"
@@ -69,7 +69,7 @@ func AddUserVerbose(client pb.UserServiceClient) {
 			log.Fatalf("Could not receive the message: %v", err)
 		}
 
-		fmt.Println("Status:", stream.Status)
+		fmt.Println("Status:", stream.Status, " - ", stream.GetUser())
 
 
 	}
