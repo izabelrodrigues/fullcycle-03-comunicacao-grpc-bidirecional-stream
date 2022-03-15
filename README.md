@@ -1,1 +1,1 @@
-# fullcycle-03-comunicacao-grpc-simples
+# fullcycle-03-comunicacao-grpc-server-stream
