@@ -4,8 +4,8 @@ import (
 	"log"
 	"net"
 
-	"github.com/izabelrodrigues/fullcycle-grpc/pb"
-	"github.com/izabelrodrigues/fullcycle-grpc/services"
+	"github.com/izabelrodrigues/fullcycle-grpc-stream/pb"
+	"github.com/izabelrodrigues/fullcycle-grpc-stream/services"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
 )
