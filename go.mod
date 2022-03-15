@@ -1,4 +1,4 @@
-module github.com/izabelrodrigues/fullcycle-grpc-stream
+module github.com/izabelrodrigues/fullcycle-grpc-client-stream
 
 go 1.17
 
