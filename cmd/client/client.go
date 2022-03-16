@@ -3,10 +3,11 @@ package main
 import (
 	"context"
 	"fmt"
+	"io"
 	"log"
 	"time"
 
-	"github.com/izabelrodrigues/fullcycle-grpc-client-stream/pb"
+	"github.com/izabelrodrigues/fullcycle-grpc-bidirecional-stream/pb"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 )
@@ -21,13 +22,18 @@ func main()  {
 	defer connection.Close()
 
 	client := pb.NewUserServiceClient(connection)
-	AddUsers(client)
+	AddUserStreamBoth(client)
 
 }
 
+func AddUserStreamBoth(client pb.UserServiceClient){
 
-func AddUsers(client pb.UserServiceClient) {
-	
+	stream, err := client.AddUserStreamBoth(context.Background())
+
+	if err != nil {
+		log.Fatalf("Error creating request: %v", err)
+	}
+
 	reqs := []*pb.User{
 		{
 			Id:    "i1",
@@ -56,27 +62,40 @@ func AddUsers(client pb.UserServiceClient) {
 		},
 	}
 
-	stream, err := client.AddUsers(context.Background())
+	//channel para o programa não morrer ao executar as functions
+	wait := make(chan int)
 
-	if err != nil {
-		log.Fatalf("Error creating request: %v", err)
-	}
+	//Função anônima para rodar de forma assincrona o envio
+	go func()  {
+		for _, req := range reqs {
+			fmt.Println("Sending User: ", req.Nome)
+			stream.Send(req)
+			time.Sleep(time.Second * 2)
+		}
 
-	//Pecorrendo a lista e enviando
-	for _, req := range reqs {
+		stream.CloseSend()
+	}()
 
-		stream.Send(req)
-		time.Sleep(time.Second * 3)
+	//Função anônima para rodar de forma assincrona a resposta
+	go func()  {
+		for {
+			res, err := stream.Recv()
 
-	}
+			if err == io.EOF {
+				break
+			}
 
-	res, err := stream.CloseAndRecv()
+			if err != nil {
+				log.Fatalf("Error receiving data: %v", err)
+				break
+			}
 
+			fmt.Printf("Receiving user %v with status: %v\n", res.GetUser().GetNome(), res.GetStatus())
+	
+		}
+		close(wait)
+	}()
 
-	if err != nil {
-		log.Fatalf("Error receiving response: %v", err)
-	}
-
-	fmt.Println(res)
+	<-wait
 
 }
